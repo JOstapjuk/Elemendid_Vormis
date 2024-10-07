@@ -131,7 +131,7 @@ namespace Elemendid_vormis_TARpv23
             {
                 int startY = 250; // Starting Y position for the first radio button
                 int spacing = 30; // Space between each radio button
-
+                00
                 for (int i = 0; i < rbtn_list.Count; i++)
                 {
                     rbtn = new RadioButton();

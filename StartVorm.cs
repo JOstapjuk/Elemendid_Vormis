@@ -1,8 +1,13 @@
+using Microsoft.VisualBasic;
+using System.Data;
+using System.Windows.Forms;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
 namespace Elemendid_vormis_TARpv23
 {
     public partial class StartVorm : Form
     {
-        List<string> elemendid = new List<string> { "Nupp", "Silt", "Pilt", "Märkeruut", "radioNupp", "Tekstkast" };
+        List<string> elemendid = new List<string> { "Nupp", "Silt", "Pilt", "Märkeruut", "radioNupp", "Tekstkast","Loetelu","Table","Dialoogaknad" };
         List<string> rbtn_list = new List<string> { "Üks", "Kaks", "Kolm" };
         TreeView tree;
         Button btn;
@@ -11,6 +16,10 @@ namespace Elemendid_vormis_TARpv23
         CheckBox chk1, chk2;
         RadioButton rbtn;
         TextBox txt;
+        ListBox lb;
+        DataSet ds;
+        DataGridView dg;
+        
 
         public StartVorm()
         {
@@ -39,7 +48,7 @@ namespace Elemendid_vormis_TARpv23
             //silt-label
             lbl = new Label();
             lbl.Text = "Aknade elemendid c# abil";
-            lbl.Font = new Font("Arial", 24, FontStyle.Underline);
+            lbl.Font = new Font("Arial", 24);
             lbl.Size = new Size(520, 50);
             lbl.Location = new Point(150, 0);
             lbl.MouseHover += Lbl_MouseHover;
@@ -129,16 +138,16 @@ namespace Elemendid_vormis_TARpv23
             }
             else if (e.Node.Text == "radioNupp")
             {
-                int startY = 250; // Starting Y position for the first radio button
-                int spacing = 30; // Space between each radio button
-                00
+                int startY = 250; 
+                int spacing = 30; 
+                
                 for (int i = 0; i < rbtn_list.Count; i++)
                 {
                     rbtn = new RadioButton();
                     rbtn.Checked = false;
                     rbtn.Text = rbtn_list[i];
-                    rbtn.Size = new Size(100, 40);
-                    rbtn.Location = new Point(350, startY + (i * spacing)); // Adjust Y position for each button
+                    rbtn.Size = new Size(80, 40);
+                    rbtn.Location = new Point(350, startY + (i * spacing)); 
                     rbtn.CheckedChanged += new EventHandler(Btn_CheckedChanged);
 
                     this.Controls.Add(rbtn);
@@ -148,20 +157,135 @@ namespace Elemendid_vormis_TARpv23
             {
                 txt = new TextBox();
                 txt.Location = new Point(250, 70);  
-                txt.Font = new Font("Arial", 24);
+                txt.Font = new Font("Arial", 10);
                 txt.Width = 200;
                 txt.TextChanged += Txt_TextChanged;
 
                 this.Controls.Add(txt);
             }
+            else if(e.Node.Text == "Loetelu")
+            {
+                lb=new ListBox();
+                foreach (string element in rbtn_list)
+                {
+                    lb.Items.Add(element);
+                }
+                lb.Location = new Point(460,70);
+                lb.Font = new Font("Arial", 10);
+                lb.Width = 200;
+                lb.SelectedIndexChanged += Lb_SelectedIndexChanged;
+
+                this.Controls.Add(lb);
+            }
+            else if (e.Node.Text == "Table")
+            {
+                ds = new DataSet("XML fail");
+                ds.ReadXml(@"..\..\..\plant.xml");
+                dg = new DataGridView();
+                dg.Location = new Point(150, 400);
+                dg.DataSource = ds;
+                dg.DataMember = "plant";
+
+                dg.SelectionChanged += Dg_SelectionChanged;
+
+                this.Controls.Add(dg);
+            }
+            else if (e.Node.Text == "Dialoogaknad")
+            {
+                var vastus = MessageBox.Show("Sisestame andmeid", "Kas sa tahad andmeti lisada?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (vastus == DialogResult.Yes)
+                {
+
+                    string common = Interaction.InputBox("Sisesta tavaline nimi", "Andmete sisestamine");
+                    string botanical = Interaction.InputBox("Sisesta botaaniline nimi", "Andmete sisestamine");
+                    string zone = Interaction.InputBox("Sisesta tsoon", "Andmete sisestamine");
+                    string light = Interaction.InputBox("Sisesta valgus", "Andmete sisestamine");
+                    string price = Interaction.InputBox("Sisesta hind", "Andmete sisestamine");
+                    string availability = Interaction.InputBox("Sisesta saadavus", "Andmete sisestamine");
+
+
+                    AddPlantToXml(common, botanical, zone, light, price, availability);
+                    UpdateXML();
+
+                    MessageBox.Show("Uus andmed on lisatud!");
+                }
+            }
         }
 
-        private void Txt_TextChanged(object sender, EventArgs e)
+        private void AddPlantToXml(string common, string botanical, string zone, string light, string price, string availability)
+        {
+            DataSet ds = new DataSet();
+            ds.ReadXml(@"..\..\..\plant.xml");
+
+            DataTable dt = ds.Tables["plant"];
+            DataRow newRow = dt.NewRow();
+            newRow["COMMON"] = common;
+            newRow["BOTANICAL"] = botanical;
+            newRow["ZONE"] = zone;
+            newRow["LIGHT"] = light;
+            newRow["PRICE"] = price;
+            newRow["AVAILABILITY"] = availability;
+
+            dt.Rows.Add(newRow);
+
+            ds.WriteXml(@"..\..\..\plant.xml");
+        }
+
+        private void UpdateXML()
+        {
+
+            DataSet ds = new DataSet();
+            ds.ReadXml(@"..\..\..\plant.xml");
+
+            DataTable dt = ds.Tables["plant"];
+
+
+            dg.DataSource = dt; 
+        }
+
+        private void Dg_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dg.SelectedRows.Count > 0)
+            {
+                DataGridViewSelectedRowCollection selectedRows = dg.SelectedRows;
+
+                foreach (DataGridViewRow row in selectedRows)
+                {
+                    string cell1Value = row.Cells[0].Value.ToString();
+                    string cell2Value = row.Cells[1].Value.ToString();
+
+                    txt.Text = ($"{cell1Value} / {cell2Value}");
+                }
+            }
+        }
+
+        private void Lb_SelectedIndexChanged(object? sender,EventArgs e)
+        {
+            switch (lb.SelectedIndex)
+            {
+                case 0:
+                    txt.BackColor = Color.DimGray;
+                    tree.BackColor = Color.DimGray;
+                    break;
+                case 1:
+                    txt.BackColor = Color.Bisque;
+                    tree.BackColor = Color.Bisque;
+                    break;
+                case 2:
+                    txt.BackColor = Color.Cyan;
+                    tree.BackColor = Color.Cyan;
+                    break;
+            }
+
+        }
+
+        private void Txt_TextChanged(object? sender, EventArgs e)
         {
             lbl.Text = txt.Text;
         }
 
-        private void Btn_CheckedChanged(object sender, EventArgs e)
+        private void Btn_CheckedChanged(object? sender, EventArgs e)
         {
             RadioButton rb = (RadioButton)sender;
             lbl.Text = rb.Text;

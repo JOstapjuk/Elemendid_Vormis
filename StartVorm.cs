@@ -247,7 +247,8 @@ namespace Elemendid_vormis_TARpv23
                         pildiVaatamine.Show();
                         break;
                     case "Matemaatiline äraarvamismäng":
-
+                        Araarvamismang araarvamismang = new Araarvamismang(300, 400);
+                        araarvamismang.Show();
                         break;
                     case "Sarnaste piltide leidmise mäng":
 

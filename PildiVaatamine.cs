@@ -30,8 +30,8 @@ namespace Elemendid_vormis_TARpv23
             this.Text = "Pildi vaatamise programm";
 
             pbox = new PictureBox();
-            pbox.Size = new Size(400, 400);
-            pbox.Location = new Point(50, 50);
+            pbox.Size = new Size(800, 500);
+            pbox.Location = new Point(30, 30);
             pbox.SizeMode = PictureBoxSizeMode.Zoom;
             Controls.Add(pbox);
 

@@ -7,19 +7,21 @@ namespace Elemendid_vormis_TARpv23
 {
     public partial class StartVorm : Form
     {
-        List<string> elemendid = new List<string> { "Nupp", "Silt", "Pilt", "Märkeruut", "radioNupp", "Tekstkast","Loetelu","Table","Dialoogaknad" };
+        List<string> elemendid = new List<string> { "Nupp", "Silt", "Pilt", "Märkeruut", "radioNupp", "Tekstkast", "Loetelu", "Table", "Dialoogaknad","Mängid" };
         List<string> rbtn_list = new List<string> { "Üks", "Kaks", "Kolm" };
+        List<string> rbtn_list2 = new List<string> { "Pildi vaatamise programm", "Matemaatiline äraarvamismäng", "Sarnaste piltide leidmise mäng" };
         TreeView tree;
         Button btn;
         Label lbl;
         PictureBox pbox;
         CheckBox chk1, chk2;
         RadioButton rbtn;
+        RadioButton rbtn2;
         TextBox txt;
         ListBox lb;
         DataSet ds;
         DataGridView dg;
-        
+
 
         public StartVorm()
         {
@@ -97,6 +99,7 @@ namespace Elemendid_vormis_TARpv23
                 btn.BackColor = Color.White;
                 btn.ForeColor = Color.Black;
             }
+            
         }
         private void Tree_AfterSelect(object? sender, TreeViewEventArgs e)
         {
@@ -138,16 +141,16 @@ namespace Elemendid_vormis_TARpv23
             }
             else if (e.Node.Text == "radioNupp")
             {
-                int startY = 250; 
-                int spacing = 30; 
-                
+                int startY = 250;
+                int spacing = 30;
+
                 for (int i = 0; i < rbtn_list.Count; i++)
                 {
                     rbtn = new RadioButton();
                     rbtn.Checked = false;
                     rbtn.Text = rbtn_list[i];
                     rbtn.Size = new Size(80, 40);
-                    rbtn.Location = new Point(350, startY + (i * spacing)); 
+                    rbtn.Location = new Point(350, startY + (i * spacing));
                     rbtn.CheckedChanged += new EventHandler(Btn_CheckedChanged);
 
                     this.Controls.Add(rbtn);
@@ -156,21 +159,21 @@ namespace Elemendid_vormis_TARpv23
             else if (e.Node.Text == "Tekstkast")
             {
                 txt = new TextBox();
-                txt.Location = new Point(250, 70);  
+                txt.Location = new Point(250, 70);
                 txt.Font = new Font("Arial", 10);
                 txt.Width = 200;
                 txt.TextChanged += Txt_TextChanged;
 
                 this.Controls.Add(txt);
             }
-            else if(e.Node.Text == "Loetelu")
+            else if (e.Node.Text == "Loetelu")
             {
-                lb=new ListBox();
+                lb = new ListBox();
                 foreach (string element in rbtn_list)
                 {
                     lb.Items.Add(element);
                 }
-                lb.Location = new Point(460,70);
+                lb.Location = new Point(460, 70);
                 lb.Font = new Font("Arial", 10);
                 lb.Width = 200;
                 lb.SelectedIndexChanged += Lb_SelectedIndexChanged;
@@ -211,7 +214,51 @@ namespace Elemendid_vormis_TARpv23
                     MessageBox.Show("Uus andmed on lisatud!");
                 }
             }
+            else if (e.Node.Text == "Mängid")
+            {
+                int startY = 250;
+                int vahekaugus = 40;
+
+                for (int i = 0; i < rbtn_list2.Count; i++)
+                {
+                    rbtn2 = new RadioButton();
+                    rbtn2.Checked = false;
+                    rbtn2.Text = rbtn_list2[i];
+                    rbtn2.Size = new Size(250, 60);
+                    rbtn2.Location = new Point(460, startY + (i * vahekaugus));
+                    rbtn2.CheckedChanged += new EventHandler(Btn_CheckedMang);
+
+                    this.Controls.Add(rbtn2);
+                }
+            }
         }
+
+        private void Btn_CheckedMang(object? sender, EventArgs e)
+        {
+            RadioButton rb = sender as RadioButton;
+            if (rb != null && rb.Checked)
+            {
+                string selected = rb.Text;
+
+                switch (selected)
+                {
+                    case "Pildi vaatamise programm":
+                        PildiVaatamine pildiVaatamine = new PildiVaatamine(900, 700);
+                        pildiVaatamine.Show();
+                        break;
+                    case "Matemaatiline äraarvamismäng":
+
+                        break;
+                    case "Sarnaste piltide leidmise mäng":
+
+                        break;
+                    default:
+                        Console.WriteLine("Error");
+                        break;
+                }
+            }
+        }
+
 
         private void AddPlantToXml(string common, string botanical, string zone, string light, string price, string availability)
         {
@@ -241,7 +288,7 @@ namespace Elemendid_vormis_TARpv23
             DataTable dt = ds.Tables["plant"];
 
 
-            dg.DataSource = dt; 
+            dg.DataSource = dt;
         }
 
         private void Dg_SelectionChanged(object sender, EventArgs e)
@@ -260,7 +307,7 @@ namespace Elemendid_vormis_TARpv23
             }
         }
 
-        private void Lb_SelectedIndexChanged(object? sender,EventArgs e)
+        private void Lb_SelectedIndexChanged(object? sender, EventArgs e)
         {
             switch (lb.SelectedIndex)
             {
@@ -315,5 +362,7 @@ namespace Elemendid_vormis_TARpv23
             }
 
         }
+
+       
     }
 }

@@ -251,7 +251,8 @@ namespace Elemendid_vormis_TARpv23
                         araarvamismang.Show();
                         break;
                     case "Sarnaste piltide leidmise mäng":
-
+                        PiltideLeidmise piltideLeidmise = new PiltideLeidmise(550, 550);
+                        piltideLeidmise.Show();
                         break;
                     default:
                         Console.WriteLine("Error");

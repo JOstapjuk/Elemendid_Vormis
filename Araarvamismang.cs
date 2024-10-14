@@ -202,7 +202,7 @@ namespace Elemendid_vormis_TARpv23
 
         private void CheckAnswer()
         {
-            // Addition check
+
             if (addend1 + addend2 == sum.Value)
             {
                 if (!additionCorrect)

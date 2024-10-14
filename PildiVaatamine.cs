@@ -22,6 +22,7 @@ namespace Elemendid_vormis_TARpv23
         Button backgrn;
         Button close;
         ColorDialog colorDialog;
+        MenuStrip ms;
 
         public PildiVaatamine(int w, int h)
         {
@@ -119,6 +120,20 @@ namespace Elemendid_vormis_TARpv23
             exit.Location = new Point(575,550);
             exit.Click += Exit_Click;
             Controls.Add(exit);
+
+            MenuStrip ms = new MenuStrip();
+            ToolStripMenuItem windowMenu = new ToolStripMenuItem("Edit");
+            ToolStripMenuItem windowTurnMenu = new ToolStripMenuItem("Turn", null, new EventHandler(windowTurnMenu_Click));
+            windowMenu.DropDownItems.Add(windowTurnMenu);
+            ms.Items.Add(windowMenu);
+            ms.Dock = DockStyle.Top;
+            MainMenuStrip = ms;
+            Controls.Add(ms);
+        }
+
+        private void windowTurnMenu_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
 
         private void Exit_Click(object sender, EventArgs e)

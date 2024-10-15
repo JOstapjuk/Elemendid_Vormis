@@ -18,27 +18,23 @@ namespace Elemendid_vormis_TARpv23
             "b", "b", "v", "v", "w", "w", "z", "z"
         };
 
-        bool initialRevealPhaseStarted = false;
-        System.Windows.Forms.Timer delayTimer;
-
         public PiltideLeidmise(int w, int h)
         {
             this.Width = w;
             this.Height = h;
             this.Text = "Sarnaste piltide leidmise mäng";
 
+            MessageBox.Show("Tere tulemast \n\n" +
+                            "Instruktsioonid: \n" +
+                            "1. Klõpsake kahel ruudul, et paljastada peidetud ikoonid\n" +
+                            "2. Proovi sobitada kahte identset ikooni\n" +
+                            "3. Kui need ei klapi, siis on nad pärast lühikest viivitust jälle peidus.\n" +
+                            "4. Mäng lõpeb, kui kõik ikoonid on edukalt sobitatud\n\n" +
+                            "Edu mängule!", "Mängujuhised");
+
             timer = new System.Windows.Forms.Timer();
             timer.Interval = 750;
             timer.Tick += Timer_Tick;
-
-            System.Windows.Forms.Timer delayTimer = new System.Windows.Forms.Timer();
-            delayTimer.Interval = 10000;
-            delayTimer.Tick += DelayTimer_Tick;
-
-            if (delayTimer != null)
-            {
-                delayTimer.Start();
-            }
 
             tableLayoutPanel = new TableLayoutPanel
             {
@@ -47,6 +43,7 @@ namespace Elemendid_vormis_TARpv23
                 RowCount = 4,
                 BackColor = Color.CornflowerBlue
             };
+
 
             for (int i = 0; i < 4; i++)
             {
@@ -75,61 +72,44 @@ namespace Elemendid_vormis_TARpv23
 
             Controls.Add(tableLayoutPanel);
         }
-
-        private void AssignIconsToSquares()
-        {
-            foreach (Control control in tableLayoutPanel.Controls)
-            {
-                Label iconLabel = control as Label;
-                if (iconLabel != null)
-                {
-                    int randomNumber = random.Next(icons.Count);
-                    iconLabel.Text = icons[randomNumber];
-                    icons.RemoveAt(randomNumber);
-                }
-            }
-        }
+        
 
         private void Label_Click(object sender, EventArgs e)
         {
-            if (sender != null && sender is Label clickedLabel)
-            {
-                if (timer.Enabled == true || !initialRevealPhaseStarted)
-                {
-                    // During the delay phase or if we're not in the initial reveal phase
-                    return;
-                }
+            if (timer.Enabled) return;
 
+            Label clickedLabel = sender as Label;
+
+            if (clickedLabel != null)
+            {
                 if (clickedLabel.ForeColor == Color.Black)
-                    return; // Already revealed
+                    return;
 
                 if (firstClicked == null)
                 {
-                    // First icon clicked
                     firstClicked = clickedLabel;
                     firstClicked.ForeColor = Color.Black;
                     return;
                 }
 
-                // Second icon clicked
                 secondClicked = clickedLabel;
                 secondClicked.ForeColor = Color.Black;
 
-                // Start the timer to check for a match
-                timer.Start();
-
-                // Check for a match
                 if (firstClicked.Text == secondClicked.Text)
                 {
-                    // If matched, change border color to red
-                    firstClicked.BorderStyle = BorderStyle.None; // Optional: remove the border
-                    firstClicked.BackColor = Color.LightGreen; // Optional: change background color
-                    firstClicked.ForeColor = Color.Black; // Keep the icon visible
+                    firstClicked = null;
+                    secondClicked = null;
 
-                    secondClicked.BorderStyle = BorderStyle.None; // Optional: remove the border
-                    secondClicked.BackColor = Color.LightGreen; // Optional: change background color
-                    secondClicked.ForeColor = Color.Black; // Keep the icon visible
+                    if (CheckIfGameIsOver())
+                    {
+                        MessageBox.Show("Sa oled kõik ikoonid kokku sobitanud!", "Mäng Läbi");
+                        this.Close();
+                    }
+
+                    return;
                 }
+
+                timer.Start();
             }
         }
 
@@ -137,72 +117,42 @@ namespace Elemendid_vormis_TARpv23
         {
             timer.Stop();
 
-            // Reset the colors if not matched
-            if (firstClicked != null && secondClicked != null && firstClicked.Text != secondClicked.Text)
-            {
-                firstClicked.ForeColor = firstClicked.BackColor; // Hide the icon
-                secondClicked.ForeColor = secondClicked.BackColor; // Hide the icon
-            }
+            firstClicked.ForeColor = firstClicked.BackColor;
+            secondClicked.ForeColor = secondClicked.BackColor;
 
             firstClicked = null;
             secondClicked = null;
-
-            CheckForWinner(); // Check if the game is won
         }
 
-        private void CheckForWinner()
+        private void AssignIconsToSquares()
         {
+
             foreach (Control control in tableLayoutPanel.Controls)
             {
                 Label iconLabel = control as Label;
 
-                if (iconLabel != null && iconLabel.ForeColor == iconLabel.BackColor)
-                    return; // Not all matched
-
-            }
-
-            MessageBox.Show("You matched all the icons!", "Congratulations");
-            Close();
-
-            foreach (Control control in Controls)
-            {
-                control.Enabled = false; // Disable all controls
-            }
-        }
-
-        private void DelayTimer_Tick(object sender, EventArgs e)
-        {
-            if (sender != null && sender is System.Windows.Forms.Timer timer)
-            {
-                timer.Stop();
-                initialRevealPhaseStarted = true;
-                ResetIcons();
-                EnableControls();
-            }
-        }
-
-
-        private void ResetIcons()
-        {
-            foreach (Control control in tableLayoutPanel.Controls)
-            {
-                Label iconLabel = control as Label;
                 if (iconLabel != null)
                 {
-                    iconLabel.Text = "c"; // Reset icon text
-                    iconLabel.ForeColor = Color.Black; // Reset fore color
-                    iconLabel.BackColor = Color.RoyalBlue; // Reset background color
-                    iconLabel.BorderStyle = BorderStyle.FixedSingle; // Reset border
+                    int randomNumber = random.Next(icons.Count);
+                    iconLabel.Text = icons[randomNumber];
+                    iconLabel.ForeColor = iconLabel.BackColor;
+                    icons.RemoveAt(randomNumber);
                 }
             }
         }
 
-        private void EnableControls()
+        private bool CheckIfGameIsOver()
         {
-            foreach (Control control in Controls)
+            foreach (Control control in tableLayoutPanel.Controls)
             {
-                control.Enabled = true; // Enable all controls
+                Label iconLabel = control as Label;
+
+                if (iconLabel != null && iconLabel.ForeColor != Color.Black)
+                {
+                    return false; 
+                }
             }
+            return true; 
         }
     }
 }

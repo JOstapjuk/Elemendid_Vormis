@@ -22,7 +22,9 @@ namespace Elemendid_vormis_TARpv23
         Button backgrn;
         Button close;
         ColorDialog colorDialog;
+        Image currentImage;
         MenuStrip ms;
+
 
         public PildiVaatamine(int w, int h)
         {
@@ -123,30 +125,89 @@ namespace Elemendid_vormis_TARpv23
 
             MenuStrip ms = new MenuStrip();
             ToolStripMenuItem windowMenu = new ToolStripMenuItem("Edit");
-            ToolStripMenuItem windowTurnMenu = new ToolStripMenuItem("Turn", null, new EventHandler(windowTurnMenu_Click));
-            windowMenu.DropDownItems.Add(windowTurnMenu);
+            ToolStripMenuItem rotate = new ToolStripMenuItem("Pööra 90°", null, new EventHandler(windowTurnMenu_Click));
+            ToolStripMenuItem grayscale = new ToolStripMenuItem("Grayscale", null, new EventHandler(GrayscaleMenu_Click));
+            ToolStripMenuItem zoomIn = new ToolStripMenuItem("Zoom In", null, new EventHandler(ZoomInMenu_Click));
+            windowMenu.DropDownItems.Add(grayscale);
+            windowMenu.DropDownItems.Add(rotate);
+            windowMenu.DropDownItems.Add(zoomIn);
             ms.Items.Add(windowMenu);
             ms.Dock = DockStyle.Top;
             MainMenuStrip = ms;
             Controls.Add(ms);
         }
 
-        private void windowTurnMenu_Click(object sender, EventArgs e)
+
+        private void ZoomInMenu_Click(object? sender, EventArgs e)
+        {
+            if (pbox.Image != null)
+            {
+                int newWidth = (int)(pbox.Width * 1.2);
+                int newHeight = (int)(pbox.Height * 1.2);
+
+
+                pbox.Size = new Size(newWidth, newHeight);
+                pbox.SizeMode = PictureBoxSizeMode.Zoom;
+            }
+            else
+            {
+                MessageBox.Show("Pilti ei ole", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+
+        private void GrayscaleMenu_Click(object? sender, EventArgs e)
+        {
+            if (pbox.Image != null)
+            {
+                Bitmap bmp = new Bitmap(pbox.Image);
+                for (int y = 0; y < bmp.Height; y++)
+                {
+                    for (int x = 0; x < bmp.Width; x++)
+                    {
+                        Color originalColor = bmp.GetPixel(x, y);
+                        int grayScale = (int)((originalColor.R * 0.3) + (originalColor.G * 0.59) + (originalColor.B * 0.11));
+                        Color grayColor = Color.FromArgb(grayScale, grayScale, grayScale);
+                        bmp.SetPixel(x, y, grayColor);
+                    }
+                }
+                pbox.Image = bmp;
+                pbox.Refresh();
+            }
+            else
+            {
+                MessageBox.Show("Pilti ei ole", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        private void windowTurnMenu_Click(object? sender, EventArgs e)
+        {
+            if (pbox.Image != null)
+            {
+                currentImage = pbox.Image;
+                currentImage.RotateFlip(RotateFlipType.Rotate90FlipNone);
+
+                pbox.Image = currentImage;
+
+                pbox.Refresh();
+            }
+            else
+            {
+                MessageBox.Show("Pilti ei ole", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        private void Exit_Click(object? sender, EventArgs e)
         {
             this.Close();
         }
 
-        private void Exit_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        private void Close_Click(object sender, EventArgs e)
+        private void Close_Click(object? sender, EventArgs e)
         {
             pbox.Image = null;
         }
 
-        private void backGround_Click(object sender, EventArgs e)
+        private void backGround_Click(object? sender, EventArgs e)
         {
             // Näita värvidialoogiboksi. Kui kasutaja klõpsab OK, siis muutke 
             // PictureBox juhtelemendi taust selle värviga, mille kasutaja valis.

@@ -42,7 +42,7 @@ namespace Elemendid_vormis_TARpv23
             this.Text = "Matemaatiline äraarvamismäng";
 
             timeLabel = new Label();
-            timeLabel.Text = "Time Left: 30 seconds";
+            timeLabel.Text = "Aeg on jäänud: 30 sekundit";
             timeLabel.Location = new Point(95, 30);
             timeLabel.Width = 200;
             Controls.Add(timeLabel);
@@ -120,7 +120,7 @@ namespace Elemendid_vormis_TARpv23
 
 
             startButton = new Button();
-            startButton.Text = "Start the quiz";
+            startButton.Text = "Alustage viktoriini";
             startButton.Location = new Point(100, 300);
             startButton.Click += StartButton_Click;
             Controls.Add(startButton);
@@ -131,7 +131,7 @@ namespace Elemendid_vormis_TARpv23
             timer.Tick += QuizTimer_Tick;
         }
 
-        private void StartButton_Click(object sender, EventArgs e)
+        private void StartButton_Click(object? sender, EventArgs e)
         {
             StartQuiz();
             startButton.Enabled = false;
@@ -141,7 +141,7 @@ namespace Elemendid_vormis_TARpv23
         {
             score = 0;
             timeLeft = 30;
-            timeLabel.Text = "Time Left: 30 seconds";
+            timeLabel.Text = "Aeg on jäänud: 30 sekundit";
             GenerNumbers();
             timer.Start();
         }
@@ -167,14 +167,9 @@ namespace Elemendid_vormis_TARpv23
             multiplier = rand.Next(2, 11);
             timesLeftLabel.Text = multiplicand.ToString();
             timesRightLabel.Text = "× " + multiplier.ToString() + " =";
-            sumMultiply.Value = 0; 
+            sumMultiply.Value = 0;
 
-
-            do
-            {
-                divisor = rand.Next(2, 11); 
-            }
-            while (divisor == 0);
+            divisor = rand.Next(2, 11);
 
             int tempQuotient = rand.Next(2, 11);
             dividend = divisor * tempQuotient; 
@@ -183,7 +178,7 @@ namespace Elemendid_vormis_TARpv23
             sumDivide.Value = 0; 
         }
 
-        private void QuizTimer_Tick(object sender, EventArgs e)
+        private void QuizTimer_Tick(object? sender, EventArgs e)
         {
             if (timeLeft > 0)
             {
@@ -270,7 +265,7 @@ namespace Elemendid_vormis_TARpv23
             }
         }
 
-        private void answer_Enter(object sender, EventArgs e)
+        private void answer_Enter(object? sender, EventArgs e)
         {
             NumericUpDown answerBox = sender as NumericUpDown;
             if (answerBox != null)

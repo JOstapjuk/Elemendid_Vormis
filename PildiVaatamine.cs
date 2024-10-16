@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+
 
 namespace Elemendid_vormis_TARpv23
 {
@@ -24,7 +24,8 @@ namespace Elemendid_vormis_TARpv23
         ColorDialog colorDialog;
         Image currentImage;
         MenuStrip ms;
-
+        Button uploadBtn;
+        OpenFileDialog openFileDialog;
 
         public PildiVaatamine(int w, int h)
         {
@@ -40,12 +41,12 @@ namespace Elemendid_vormis_TARpv23
 
             JargmineBtn = new Button();
             JargmineBtn.Text = "Järgmine";
-            JargmineBtn.BackColor = Color.LightBlue; 
-            JargmineBtn.ForeColor = Color.Black; 
-            JargmineBtn.Font = new Font("Arial", 8, FontStyle.Bold); 
-            JargmineBtn.FlatStyle = FlatStyle.Flat; 
+            JargmineBtn.BackColor = Color.LightBlue;
+            JargmineBtn.ForeColor = Color.Black;
+            JargmineBtn.Font = new Font("Arial", 8, FontStyle.Bold);
+            JargmineBtn.FlatStyle = FlatStyle.Flat;
             JargmineBtn.FlatAppearance.BorderSize = 0;
-            JargmineBtn.Size = new Size(65,20);
+            JargmineBtn.Size = new Size(65, 20);
             JargmineBtn.Location = new Point(50, 550);
             JargmineBtn.Click += JrBtn_Click;
             Controls.Add(JargmineBtn);
@@ -95,7 +96,7 @@ namespace Elemendid_vormis_TARpv23
             backgrn.FlatStyle = FlatStyle.Flat;
             backgrn.FlatAppearance.BorderSize = 0;
             backgrn.Size = new Size(60, 40);
-            backgrn.Location = new Point(445,550);
+            backgrn.Location = new Point(445, 550);
             backgrn.Click += backGround_Click;
             Controls.Add(backgrn);
 
@@ -119,9 +120,24 @@ namespace Elemendid_vormis_TARpv23
             exit.FlatStyle = FlatStyle.Flat;
             exit.FlatAppearance.BorderSize = 0;
             exit.Size = new Size(60, 20);
-            exit.Location = new Point(575,550);
+            exit.Location = new Point(575, 550);
             exit.Click += Exit_Click;
             Controls.Add(exit);
+
+            openFileDialog = new OpenFileDialog(); 
+            openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.gif"; 
+
+            uploadBtn = new Button();
+            uploadBtn.Text = "Lisa Pilt";
+            uploadBtn.BackColor = Color.LightBlue;
+            uploadBtn.ForeColor = Color.Black;
+            uploadBtn.Font = new Font("Arial", 8, FontStyle.Bold);
+            uploadBtn.FlatStyle = FlatStyle.Flat;
+            uploadBtn.FlatAppearance.BorderSize = 0;
+            uploadBtn.Size = new Size(80, 20);
+            uploadBtn.Location = new Point(720, 550);
+            uploadBtn.Click += UploadBtn_Click; 
+            Controls.Add(uploadBtn);
 
             MenuStrip ms = new MenuStrip();
             ToolStripMenuItem windowMenu = new ToolStripMenuItem("Edit");
@@ -137,15 +153,22 @@ namespace Elemendid_vormis_TARpv23
             Controls.Add(ms);
         }
 
+        private void UploadBtn_Click(object? sender, EventArgs e)
+        {
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string filePath = openFileDialog.FileName;
+                pbox.Image = Image.FromFile(filePath);
+            }
+        }
 
+        //https://www.codeproject.com/Articles/21097/PictureBox-Zoom
         private void ZoomInMenu_Click(object? sender, EventArgs e)
         {
             if (pbox.Image != null)
             {
                 int newWidth = (int)(pbox.Width * 1.2);
                 int newHeight = (int)(pbox.Height * 1.2);
-
-
                 pbox.Size = new Size(newWidth, newHeight);
                 pbox.SizeMode = PictureBoxSizeMode.Zoom;
             }
@@ -154,7 +177,6 @@ namespace Elemendid_vormis_TARpv23
                 MessageBox.Show("Pilti ei ole", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
-
 
         private void GrayscaleMenu_Click(object? sender, EventArgs e)
         {
@@ -180,15 +202,37 @@ namespace Elemendid_vormis_TARpv23
             }
         }
 
+        int tt = 0;
+        private void JrBtn_Click(object? sender, EventArgs e)
+        {
+            string fail = pildid[tt];
+            pbox.Image = Image.FromFile(@"..\..\..\" + fail);
+            tt++;
+            if (tt == 4)
+            {
+                tt = 0;
+            }
+        }
+
+        private void TgBtn_Click(object? sender, EventArgs e)
+        {
+            string fail = pildid[tt];
+            pbox.Image = Image.FromFile(@"..\..\..\" + fail);
+            tt--;
+            if (tt < 0)
+            {
+                tt = pildid.Length - 1;
+            }
+        }
+       
+
         private void windowTurnMenu_Click(object? sender, EventArgs e)
         {
             if (pbox.Image != null)
             {
                 currentImage = pbox.Image;
                 currentImage.RotateFlip(RotateFlipType.Rotate90FlipNone);
-
                 pbox.Image = currentImage;
-
                 pbox.Refresh();
             }
             else
@@ -218,29 +262,6 @@ namespace Elemendid_vormis_TARpv23
         private void Show_Click(object? sender, EventArgs e)
         {
             pbox.Image = Image.FromFile(@"..\..\..\" + pildid[3]);           
-        }
-
-        int tt = 0;
-        private void JrBtn_Click(object? sender, EventArgs e)
-        {
-            string fail = pildid[tt];
-            pbox.Image = Image.FromFile(@"..\..\..\" + fail);
-            tt++;
-            if (tt == 4) 
-            { 
-                tt = 0; 
-            }
-        }
-
-        private void TgBtn_Click(object? sender, EventArgs e)
-        {
-            string fail = pildid[tt];
-            pbox.Image = Image.FromFile(@"..\..\..\" + fail);
-            tt--;
-            if (tt < 0) 
-            { 
-                tt = pildid.Length-1; 
-            }
         }
 
         private void Chk_CheckedChanged(object? sender, EventArgs e)

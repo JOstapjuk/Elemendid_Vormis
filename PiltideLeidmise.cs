@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using System.Windows.Forms;
+
 
 namespace Elemendid_vormis_TARpv23
 {
@@ -12,11 +14,12 @@ namespace Elemendid_vormis_TARpv23
         Label secondClicked = null;
         System.Windows.Forms.Timer timer;
         Random random = new Random();
-        List<string> icons = new List<string>()
+        List<string> iconsW = new List<string>()
         {
             "!", "!", "N", "N", ",", ",", "k", "k",
             "b", "b", "v", "v", "w", "w", "z", "z"
         };
+        int tries;
 
         public PiltideLeidmise(int w, int h)
         {
@@ -32,9 +35,43 @@ namespace Elemendid_vormis_TARpv23
                             "4. Mäng lõpeb, kui kõik ikoonid on edukalt sobitatud\n\n" +
                             "Edu mängule!", "Mängujuhised");
 
+            ChooseIconSet();
+
             timer = new System.Windows.Forms.Timer();
             timer.Interval = 750;
             timer.Tick += Timer_Tick;
+
+            Panel buttonPanel = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 80 
+            };
+
+            Button closeButton = new Button
+            {
+                Text = "Sulge mäng",
+                Dock = DockStyle.Right,
+                Height = 50,
+                Width = 200
+            };
+            closeButton.Click += (sender, e) => this.Close();
+
+            Button restartButton = new Button
+            {
+                Text = "Taaskäivitada mäng",
+                Dock = DockStyle.Left,
+                Height = 50,
+                Width = 200
+            };
+            restartButton.Click += (sender, e) => RestartGame();
+
+            Label counterLabel = new Label
+            {
+                Text = "Proovid: 0",
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Font = new Font("Arial", 14)
+            };
 
             tableLayoutPanel = new TableLayoutPanel
             {
@@ -70,11 +107,89 @@ namespace Elemendid_vormis_TARpv23
 
             AssignIconsToSquares();
 
-            Controls.Add(tableLayoutPanel);
-        }
-        
+            buttonPanel.Controls.Add(counterLabel);
+            buttonPanel.Controls.Add(closeButton);
+            buttonPanel.Controls.Add(restartButton);
 
-        private void Label_Click(object sender, EventArgs e)
+            Controls.Add(tableLayoutPanel);
+            Controls.Add(buttonPanel);
+        }
+
+        private void UpdateCounterLabel()
+        {
+            
+            Label counterLabel = (Label)((Panel)Controls[1]).Controls[0];
+            counterLabel.Text = $"Proovid: {tries}";
+        }
+
+        private void RestartGame()
+        {
+            firstClicked = null;
+            secondClicked = null;
+            iconsW.Clear();
+            ChooseIconSet();
+            AssignIconsToSquares();
+        }
+
+        private void ChooseIconSet()
+        {
+            Form selectionForm = new Form
+            {
+                Text = "Ikoonide valik",
+                Width = 300,
+                Height = 200,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                StartPosition = FormStartPosition.CenterParent,
+                MinimizeBox = false,
+                MaximizeBox = false
+            };
+
+            RadioButton rbSet1 = new RadioButton { Text = "Webdings 1", Location = new Point(20, 20), Checked = true };
+            RadioButton rbSet2 = new RadioButton { Text = "Webdings 2", Location = new Point(20, 50) };
+            RadioButton rbSet3 = new RadioButton { Text = "Webdings 3", Location = new Point(20, 80) };
+
+            Button confirmButton = new Button { Text = "OK", Location = new Point(100, 120), DialogResult = DialogResult.OK };
+            confirmButton.Click += (sender, e) => selectionForm.Close();
+
+            selectionForm.Controls.Add(rbSet1);
+            selectionForm.Controls.Add(rbSet2);
+            selectionForm.Controls.Add(rbSet3);
+            selectionForm.Controls.Add(confirmButton);
+
+            if (selectionForm.ShowDialog() == DialogResult.OK)
+            {
+                if (rbSet1.Checked)
+                {
+                    iconsW = new List<string>
+                    {
+                        "!", "!", "N", "N", ",", ",", "k", "k",
+                        "b", "b", "v", "v", "w", "w", "z", "z"
+                    };
+                }
+                else if (rbSet2.Checked)
+                {
+                    iconsW = new List<string>
+                    {
+                        "a", "a", "e", "e", "c", "c", "d", "d",
+                        "f", "f", "o", "o", "j", "j", "i", "i"
+                    };
+                }
+                else if (rbSet3.Checked)
+                {
+                    iconsW = new List<string>
+                    {
+                        "]", "]", ".", ".", "_", "_", "@", "@",
+                        "$", "$", "%", "%", "*", "*", "+", "+"
+                    };
+                }
+            }
+            else
+            {
+                this.Close();
+            }
+        }
+
+        private void Label_Click(object? sender, EventArgs e)
         {
             if (timer.Enabled) return;
 
@@ -95,6 +210,9 @@ namespace Elemendid_vormis_TARpv23
                 secondClicked = clickedLabel;
                 secondClicked.ForeColor = Color.Black;
 
+                tries++; 
+                UpdateCounterLabel(); 
+
                 if (firstClicked.Text == secondClicked.Text)
                 {
                     firstClicked = null;
@@ -102,7 +220,7 @@ namespace Elemendid_vormis_TARpv23
 
                     if (CheckIfGameIsOver())
                     {
-                        MessageBox.Show("Sa oled kõik ikoonid kokku sobitanud!", "Mäng Läbi");
+                        MessageBox.Show($"Sa oled kõik ikoonid kokku sobitanud! Proovide arv: {tries}", "Mäng Läbi");
                         this.Close();
                     }
 
@@ -113,7 +231,9 @@ namespace Elemendid_vormis_TARpv23
             }
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
+
+
+        private void Timer_Tick(object? sender, EventArgs e)
         {
             timer.Stop();
 
@@ -133,10 +253,10 @@ namespace Elemendid_vormis_TARpv23
 
                 if (iconLabel != null)
                 {
-                    int randomNumber = random.Next(icons.Count);
-                    iconLabel.Text = icons[randomNumber];
+                    int randomNumber = random.Next(iconsW.Count);
+                    iconLabel.Text = iconsW[randomNumber];
                     iconLabel.ForeColor = iconLabel.BackColor;
-                    icons.RemoveAt(randomNumber);
+                    iconsW.RemoveAt(randomNumber);
                 }
             }
         }

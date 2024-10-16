@@ -20,6 +20,8 @@ namespace Elemendid_vormis_TARpv23
         Label dividedRightLabel;
         NumericUpDown sumDivide;
         Button startButton;
+        Button restartButton; 
+        Button closeButton;
         System.Windows.Forms.Timer timer;
         int timeLeft;
         Random rand = new Random();
@@ -120,16 +122,68 @@ namespace Elemendid_vormis_TARpv23
 
 
             startButton = new Button();
-            startButton.Text = "Alustage viktoriini";
-            startButton.Location = new Point(100, 300);
+            startButton.Text = "Alustage";
+            startButton.Location = new Point(10, 300);
             startButton.Click += StartButton_Click;
             Controls.Add(startButton);
 
+            restartButton = new Button();
+            restartButton.Text = "Taaskäivita";
+            restartButton.Location = new Point(100, 300);
+            restartButton.Click += RestartButton_Click;
+            Controls.Add(restartButton);
+
+            closeButton = new Button();
+            closeButton.Text = "Sulge";
+            closeButton.Location = new Point(190, 300);
+            closeButton.Click += (sender, e) => this.Close();
+            Controls.Add(closeButton);
 
             timer = new System.Windows.Forms.Timer(); 
             timer.Interval = 1000; 
             timer.Tick += QuizTimer_Tick;
         }
+
+        private void RestartButton_Click(object? sender, EventArgs e)
+        {
+            ResetGame();
+        }
+
+        private void ResetGame()
+        {
+            score = 0;
+            timeLeft = 30;
+            timeLabel.Text = "Aeg on jäänud: 30 sekundit";
+            startButton.Enabled = true;
+            timer.Stop();
+            ResetControls();
+        }
+
+        private void ResetControls()
+        {
+            sum.Value = 0;
+            sumMinus.Value = 0;
+            sumMultiply.Value = 0;
+            sumDivide.Value = 0;
+
+            plusLeftLabel.Text = "0";
+            plusRightLabel.Text = "+ 0 =";
+
+            minusLeftLabel.Text = "0";
+            minusRightLabel.Text = "- 0 =";
+
+            timesLeftLabel.Text = "0";
+            timesRightLabel.Text = "× 0 =";
+
+            dividedLeftLabel.Text = "0";
+            dividedRightLabel.Text = "÷ 0 =";
+
+            additionCorrect = false;
+            subtractionCorrect = false;
+            multiplicationCorrect = false;
+            divisionCorrect = false;
+        }
+
 
         private void StartButton_Click(object? sender, EventArgs e)
         {

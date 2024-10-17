@@ -243,7 +243,7 @@ namespace Elemendid_vormis_TARpv23
                 switch (selected)
                 {
                     case "Pildi vaatamise programm":
-                        PildiVaatamine pildiVaatamine = new PildiVaatamine(900, 700);
+                        PildiVaatamine pildiVaatamine = new PildiVaatamine(1200, 700);
                         pildiVaatamine.Show();
                         break;
                     case "Matemaatiline äraarvamismäng":

@@ -14,6 +14,7 @@ namespace Elemendid_vormis_TARpv23
     {
         string[] pildid = { "esimene.png", "teine.png", "kolmas.png", "game.png" };
         PictureBox pbox;
+        PictureBox zoomPbox;
         Button JargmineBtn;
         Button TagasiBtn;
         CheckBox chkb;
@@ -26,6 +27,8 @@ namespace Elemendid_vormis_TARpv23
         MenuStrip ms;
         Button uploadBtn;
         OpenFileDialog openFileDialog;
+        private Image _OriginalImage;
+        private int _ZoomFactor = 1; 
 
         public PildiVaatamine(int w, int h)
         {
@@ -37,7 +40,16 @@ namespace Elemendid_vormis_TARpv23
             pbox.Size = new Size(800, 500);
             pbox.Location = new Point(30, 30);
             pbox.SizeMode = PictureBoxSizeMode.Zoom;
+            pbox.MouseMove += Pbox_MouseMove;
             Controls.Add(pbox);
+
+
+            zoomPbox = new PictureBox();
+            zoomPbox.Size = new Size(150, 150); 
+            zoomPbox.Location = new Point(850, 30);
+            zoomPbox.BorderStyle = BorderStyle.FixedSingle;
+            zoomPbox.BackColor = Color.White;
+            Controls.Add(zoomPbox);
 
             JargmineBtn = new Button();
             JargmineBtn.Text = "Järgmine";
@@ -143,14 +155,133 @@ namespace Elemendid_vormis_TARpv23
             ToolStripMenuItem windowMenu = new ToolStripMenuItem("Edit");
             ToolStripMenuItem rotate = new ToolStripMenuItem("Pööra 90°", null, new EventHandler(windowTurnMenu_Click));
             ToolStripMenuItem grayscale = new ToolStripMenuItem("Grayscale", null, new EventHandler(GrayscaleMenu_Click));
-            ToolStripMenuItem zoomIn = new ToolStripMenuItem("Zoom In", null, new EventHandler(ZoomInMenu_Click));
             windowMenu.DropDownItems.Add(grayscale);
             windowMenu.DropDownItems.Add(rotate);
-            windowMenu.DropDownItems.Add(zoomIn);
             ms.Items.Add(windowMenu);
             ms.Dock = DockStyle.Top;
             MainMenuStrip = ms;
             Controls.Add(ms);
+        }
+
+        //https://www.codeproject.com/Articles/21097/PictureBox-Zoom
+
+        private void UpdateImage()
+        {
+            // If _OriginalImage is null, then return. This situation can occur
+
+            // when a new backcolor is selected without an image loaded.
+            if (_OriginalImage == null) return;
+
+
+            // sourceWidth and sourceHeight store
+            // the original image's width and height
+
+            // targetWidth and targetHeight are calculated
+            // to fit into the picImage picturebox.
+            int sourceWidth = _OriginalImage.Width;
+            int sourceHeight = _OriginalImage.Height;
+            int targetWidth, targetHeight;
+            double ratio;
+
+            // Calculate targetWidth and targetHeight, so that the image will fit into
+
+            // the picImage picturebox without changing the proportions of the image.
+
+            if (sourceWidth > sourceHeight)
+            {
+                // Set the new width
+
+                targetWidth = pbox.Width;
+                // Calculate the ratio of the new width against the original width
+                ratio = (double)targetWidth / sourceWidth;
+                // Calculate a new height that is in proportion with the original image
+                targetHeight = (int)(ratio * sourceHeight);
+            }
+            else if (sourceWidth < sourceHeight)
+            {
+                // Set the new height
+
+                targetHeight = pbox.Height;
+                // Calculate the ratio of the new height against the original height
+                ratio = (double)targetHeight / sourceHeight;
+                // Calculate a new width that is in proportion with the original image
+                targetWidth = (int)(ratio * sourceWidth);
+            }
+            else
+            {
+                // In this case, the image is square and resizing is easy
+
+                targetWidth = pbox.Width;
+                targetHeight = pbox.Height;
+            }
+
+            // Calculate the targetTop and targetLeft values, to center the image
+
+            // horizontally or vertically if needed
+
+            int targetTop = (pbox.Height - targetHeight) / 2;
+            int targetLeft = (pbox.Width - targetWidth) / 2;
+
+            // Create a new temporary bitmap to resize the original image
+
+            // The size of this bitmap is the size of the picImage picturebox
+            Bitmap tempBitmap = new Bitmap(pbox.Width, pbox.Height);
+            // Set the resolution of the bitmap to match the original resolution.
+            Graphics bmGraphics = Graphics.FromImage(tempBitmap);
+            // Create a Graphics object to further edit the temporary bitmap
+            bmGraphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            // Draw the original image on the temporary bitmap, resizing it using
+
+            // the calculated values of targetWidth and targetHeight.
+            bmGraphics.DrawImage(_OriginalImage, new Rectangle(targetLeft, targetTop, targetWidth, targetHeight), new Rectangle(0, 0, sourceWidth, sourceHeight), GraphicsUnit.Pixel);
+
+            // Dispose of the bmGraphics object
+            bmGraphics.Dispose();
+            // Set the image of the picImage picturebox to the temporary bitmap
+            pbox.Image = tempBitmap;
+        }
+
+        private void UpdateZoomedImage(MouseEventArgs e)
+        {
+            if (_OriginalImage == null) return;
+
+            // Calculate the width and height of the portion of the image we want
+
+            // to show in the picZoom picturebox. This value changes when the zoom
+
+            // factor is changed.
+            int zoomWidth = zoomPbox.Width;
+            int zoomHeight = zoomPbox.Height;
+            // Calculate the horizontal and vertical midpoints for the crosshair
+
+            // cursor and correct centering of the new image
+            int halfWidth = zoomWidth / (2 * _ZoomFactor);
+            int halfHeight = zoomHeight / (2 * _ZoomFactor);
+
+            // Ensure the mouse doesn't go out of the bounds of the image
+            int zoomX = Math.Max(0, Math.Min(e.X - halfWidth, _OriginalImage.Width - zoomWidth / _ZoomFactor));
+            int zoomY = Math.Max(0, Math.Min(e.Y - halfHeight, _OriginalImage.Height - zoomHeight / _ZoomFactor));
+
+            // Create a new temporary bitmap to fit inside the picZoom picturebox
+            Bitmap zoomedImage = new Bitmap(zoomWidth, zoomHeight);
+            // Draw the portion of the main image onto the bitmap
+
+            // The target rectangle is already known now.
+
+            // Here the mouse position of the cursor on the main image is used to
+
+            // cut out a portion of the main image.
+            using (Graphics g = Graphics.FromImage(zoomedImage))
+            {
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                g.DrawImage(_OriginalImage, new Rectangle(0, 0, zoomWidth, zoomHeight),
+                            new Rectangle(zoomX, zoomY, zoomWidth / _ZoomFactor, zoomHeight / _ZoomFactor), GraphicsUnit.Pixel);
+            }
+
+            // Draw the bitmap on the picZoom picturebox
+            zoomPbox.Image = zoomedImage;
+            // Refresh the picZoom picturebox to reflect the changes
+            zoomPbox.Refresh();
         }
 
         private void UploadBtn_Click(object? sender, EventArgs e)
@@ -158,25 +289,18 @@ namespace Elemendid_vormis_TARpv23
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 string filePath = openFileDialog.FileName;
-                pbox.Image = Image.FromFile(filePath);
+                _OriginalImage = Image.FromFile(filePath);
+                pbox.Image = _OriginalImage;
             }
         }
 
-        //https://www.codeproject.com/Articles/21097/PictureBox-Zoom
-        private void ZoomInMenu_Click(object? sender, EventArgs e)
+        private void Pbox_MouseMove(object sender, MouseEventArgs e)
         {
-            if (pbox.Image != null)
+            if (_OriginalImage != null)
             {
-                int newWidth = (int)(pbox.Width * 1.2);
-                int newHeight = (int)(pbox.Height * 1.2);
-                pbox.Size = new Size(newWidth, newHeight);
-                pbox.SizeMode = PictureBoxSizeMode.Zoom;
+                UpdateZoomedImage(e);
             }
-            else
-            {
-                MessageBox.Show("Pilti ei ole", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-        }
+        }      
 
         private void GrayscaleMenu_Click(object? sender, EventArgs e)
         {
@@ -206,7 +330,8 @@ namespace Elemendid_vormis_TARpv23
         private void JrBtn_Click(object? sender, EventArgs e)
         {
             string fail = pildid[tt];
-            pbox.Image = Image.FromFile(@"..\..\..\" + fail);
+            _OriginalImage = Image.FromFile(@"..\..\..\" + fail); // Update _OriginalImage
+            pbox.Image = _OriginalImage;
             tt++;
             if (tt == 4)
             {
@@ -217,14 +342,15 @@ namespace Elemendid_vormis_TARpv23
         private void TgBtn_Click(object? sender, EventArgs e)
         {
             string fail = pildid[tt];
-            pbox.Image = Image.FromFile(@"..\..\..\" + fail);
+            _OriginalImage = Image.FromFile(@"..\..\..\" + fail); // Update _OriginalImage
+            pbox.Image = _OriginalImage;
             tt--;
             if (tt < 0)
             {
                 tt = pildid.Length - 1;
             }
         }
-       
+
 
         private void windowTurnMenu_Click(object? sender, EventArgs e)
         {

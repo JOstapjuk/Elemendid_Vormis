@@ -240,7 +240,7 @@ namespace Elemendid_vormis_TARpv23
             // Set the image of the picImage picturebox to the temporary bitmap
             pbox.Image = tempBitmap;
         }
-
+        //
         private void UpdateZoomedImage(MouseEventArgs e)
         {
             if (_OriginalImage == null) return;

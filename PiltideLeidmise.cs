@@ -129,6 +129,8 @@ namespace Elemendid_vormis_TARpv23
             iconsW.Clear();
             ChooseIconSet();
             AssignIconsToSquares();
+            tries = 0;
+            UpdateCounterLabel();
         }
 
         private void ChooseIconSet()

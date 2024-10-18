@@ -27,7 +27,7 @@ namespace Elemendid_vormis_TARpv23
         MenuStrip ms;
         Button uploadBtn;
         OpenFileDialog openFileDialog;
-        private Image _OriginalImage;
+        private Image Image;
         private int _ZoomFactor = 1; 
 
         public PildiVaatamine(int w, int h)
@@ -170,7 +170,7 @@ namespace Elemendid_vormis_TARpv23
             // If _OriginalImage is null, then return. This situation can occur
 
             // when a new backcolor is selected without an image loaded.
-            if (_OriginalImage == null) return;
+            if (Image == null) return;
 
 
             // sourceWidth and sourceHeight store
@@ -178,8 +178,8 @@ namespace Elemendid_vormis_TARpv23
 
             // targetWidth and targetHeight are calculated
             // to fit into the picImage picturebox.
-            int sourceWidth = _OriginalImage.Width;
-            int sourceHeight = _OriginalImage.Height;
+            int sourceWidth = Image.Width;
+            int sourceHeight = Image.Height;
             int targetWidth, targetHeight;
             double ratio;
 
@@ -194,6 +194,7 @@ namespace Elemendid_vormis_TARpv23
                 targetWidth = pbox.Width;
                 // Calculate the ratio of the new width against the original width
                 ratio = (double)targetWidth / sourceWidth;
+
                 // Calculate a new height that is in proportion with the original image
                 targetHeight = (int)(ratio * sourceHeight);
             }
@@ -204,6 +205,7 @@ namespace Elemendid_vormis_TARpv23
                 targetHeight = pbox.Height;
                 // Calculate the ratio of the new height against the original height
                 ratio = (double)targetHeight / sourceHeight;
+
                 // Calculate a new width that is in proportion with the original image
                 targetWidth = (int)(ratio * sourceWidth);
             }
@@ -226,24 +228,28 @@ namespace Elemendid_vormis_TARpv23
 
             // The size of this bitmap is the size of the picImage picturebox
             Bitmap tempBitmap = new Bitmap(pbox.Width, pbox.Height);
+
             // Set the resolution of the bitmap to match the original resolution.
             Graphics bmGraphics = Graphics.FromImage(tempBitmap);
+
             // Create a Graphics object to further edit the temporary bitmap
             bmGraphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+
             // Draw the original image on the temporary bitmap, resizing it using
 
             // the calculated values of targetWidth and targetHeight.
-            bmGraphics.DrawImage(_OriginalImage, new Rectangle(targetLeft, targetTop, targetWidth, targetHeight), new Rectangle(0, 0, sourceWidth, sourceHeight), GraphicsUnit.Pixel);
+            bmGraphics.DrawImage(Image, new Rectangle(targetLeft, targetTop, targetWidth, targetHeight), new Rectangle(0, 0, sourceWidth, sourceHeight), GraphicsUnit.Pixel);
 
             // Dispose of the bmGraphics object
             bmGraphics.Dispose();
+
             // Set the image of the picImage picturebox to the temporary bitmap
             pbox.Image = tempBitmap;
         }
-        //
+        
         private void UpdateZoomedImage(MouseEventArgs e)
         {
-            if (_OriginalImage == null) return;
+            if (Image == null) return;
 
             // Calculate the width and height of the portion of the image we want
 
@@ -259,8 +265,8 @@ namespace Elemendid_vormis_TARpv23
             int halfHeight = zoomHeight / (2 * _ZoomFactor);
 
             // Ensure the mouse doesn't go out of the bounds of the image
-            int zoomX = Math.Max(0, Math.Min(e.X - halfWidth, _OriginalImage.Width - zoomWidth / _ZoomFactor));
-            int zoomY = Math.Max(0, Math.Min(e.Y - halfHeight, _OriginalImage.Height - zoomHeight / _ZoomFactor));
+            int zoomX = Math.Max(0, Math.Min(e.X - halfWidth, Image.Width - zoomWidth / _ZoomFactor));
+            int zoomY = Math.Max(0, Math.Min(e.Y - halfHeight, Image.Height - zoomHeight / _ZoomFactor));
 
             // Create a new temporary bitmap to fit inside the picZoom picturebox
             Bitmap zoomedImage = new Bitmap(zoomWidth, zoomHeight);
@@ -274,7 +280,7 @@ namespace Elemendid_vormis_TARpv23
             using (Graphics g = Graphics.FromImage(zoomedImage))
             {
                 g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                g.DrawImage(_OriginalImage, new Rectangle(0, 0, zoomWidth, zoomHeight),
+                g.DrawImage(Image, new Rectangle(0, 0, zoomWidth, zoomHeight),
                             new Rectangle(zoomX, zoomY, zoomWidth / _ZoomFactor, zoomHeight / _ZoomFactor), GraphicsUnit.Pixel);
             }
 
@@ -289,14 +295,14 @@ namespace Elemendid_vormis_TARpv23
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 string filePath = openFileDialog.FileName;
-                _OriginalImage = Image.FromFile(filePath);
-                pbox.Image = _OriginalImage;
+                Image = Image.FromFile(filePath);
+                pbox.Image = Image;
             }
         }
 
         private void Pbox_MouseMove(object sender, MouseEventArgs e)
         {
-            if (_OriginalImage != null)
+            if (Image != null)
             {
                 UpdateZoomedImage(e);
             }
@@ -330,8 +336,8 @@ namespace Elemendid_vormis_TARpv23
         private void JrBtn_Click(object? sender, EventArgs e)
         {
             string fail = pildid[tt];
-            _OriginalImage = Image.FromFile(@"..\..\..\" + fail); // Update _OriginalImage
-            pbox.Image = _OriginalImage;
+            Image = Image.FromFile(@"..\..\..\" + fail);
+            pbox.Image = Image;
             tt++;
             if (tt == 4)
             {
@@ -342,8 +348,8 @@ namespace Elemendid_vormis_TARpv23
         private void TgBtn_Click(object? sender, EventArgs e)
         {
             string fail = pildid[tt];
-            _OriginalImage = Image.FromFile(@"..\..\..\" + fail); // Update _OriginalImage
-            pbox.Image = _OriginalImage;
+            Image = Image.FromFile(@"..\..\..\" + fail); 
+            pbox.Image = Image;
             tt--;
             if (tt < 0)
             {

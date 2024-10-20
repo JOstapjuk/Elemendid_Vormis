@@ -27,8 +27,10 @@ namespace Elemendid_vormis_TARpv23
         MenuStrip ms;
         Button uploadBtn;
         OpenFileDialog openFileDialog;
-        private Image Image;
-        private int _ZoomFactor = 1; 
+        Image Image;
+        Image originalImage;
+        int _ZoomFactor = 1;
+        int tt = 0;
 
         public PildiVaatamine(int w, int h)
         {
@@ -151,6 +153,18 @@ namespace Elemendid_vormis_TARpv23
             uploadBtn.Click += UploadBtn_Click; 
             Controls.Add(uploadBtn);
 
+            Button saveBtn = new Button();
+            saveBtn.Text = "Salvesta";
+            saveBtn.BackColor = Color.LightBlue;
+            saveBtn.ForeColor = Color.Black;
+            saveBtn.Font = new Font("Arial", 8, FontStyle.Bold);
+            saveBtn.FlatStyle = FlatStyle.Flat;
+            saveBtn.FlatAppearance.BorderSize = 0;
+            saveBtn.Size = new Size(80, 20);
+            saveBtn.Location = new Point(640, 550); 
+            saveBtn.Click += SaveImage_Click; 
+            Controls.Add(saveBtn);
+
             MenuStrip ms = new MenuStrip();
             ToolStripMenuItem windowMenu = new ToolStripMenuItem("Edit");
             ToolStripMenuItem rotate = new ToolStripMenuItem("Pööra 90°", null, new EventHandler(windowTurnMenu_Click));
@@ -161,6 +175,24 @@ namespace Elemendid_vormis_TARpv23
             ms.Dock = DockStyle.Top;
             MainMenuStrip = ms;
             Controls.Add(ms);
+        }
+
+        //https://www.youtube.com/watch?v=bb8ic5qwapo
+        private void SaveImage_Click(object sender, EventArgs e)
+        {
+            if (pbox.Image != null)
+            {
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                saveFileDialog.Filter = "PNG Image|*.png";
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    pbox.Image.Save(saveFileDialog.FileName);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Pole pilti, mida salvestada", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         //https://www.codeproject.com/Articles/21097/PictureBox-Zoom
@@ -255,6 +287,8 @@ namespace Elemendid_vormis_TARpv23
 
             // to show in the picZoom picturebox. This value changes when the zoom
 
+            bool isGrayscale = IsImageGrayscale(pbox.Image);
+
             // factor is changed.
             int zoomWidth = zoomPbox.Width;
             int zoomHeight = zoomPbox.Height;
@@ -284,10 +318,42 @@ namespace Elemendid_vormis_TARpv23
                             new Rectangle(zoomX, zoomY, zoomWidth / _ZoomFactor, zoomHeight / _ZoomFactor), GraphicsUnit.Pixel);
             }
 
+            if (isGrayscale)
+            {
+                for (int y = 0; y < zoomedImage.Height; y++)
+                {
+                    for (int x = 0; x < zoomedImage.Width; x++)
+                    {
+                        Color pixelColor = zoomedImage.GetPixel(x, y);
+                        int grayScale = (int)((pixelColor.R * 0.3) + (pixelColor.G * 0.59) + (pixelColor.B * 0.11));
+                        zoomedImage.SetPixel(x, y, Color.FromArgb(grayScale, grayScale, grayScale));
+                    }
+                }
+            }
+
             // Draw the bitmap on the picZoom picturebox
             zoomPbox.Image = zoomedImage;
             // Refresh the picZoom picturebox to reflect the changes
             zoomPbox.Refresh();
+        }
+
+        private bool IsImageGrayscale(Image image)
+        {
+            if (image == null) return false;
+
+            Bitmap bmp = new Bitmap(image);
+            for (int y = 0; y < bmp.Height; y++)
+            {
+                for (int x = 0; x < bmp.Width; x++)
+                {
+                    Color pixelColor = bmp.GetPixel(x, y);
+                    if (pixelColor.R != pixelColor.G || pixelColor.G != pixelColor.B)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
 
         private void UploadBtn_Click(object? sender, EventArgs e)
@@ -295,7 +361,8 @@ namespace Elemendid_vormis_TARpv23
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 string filePath = openFileDialog.FileName;
-                Image = Image.FromFile(filePath);
+                originalImage = Image.FromFile(filePath);
+                Image = originalImage; 
                 pbox.Image = Image;
             }
         }
@@ -306,13 +373,13 @@ namespace Elemendid_vormis_TARpv23
             {
                 UpdateZoomedImage(e);
             }
-        }      
+        }
 
         private void GrayscaleMenu_Click(object? sender, EventArgs e)
         {
-            if (pbox.Image != null)
+            if (originalImage != null)
             {
-                Bitmap bmp = new Bitmap(pbox.Image);
+                Bitmap bmp = new Bitmap(originalImage);
                 for (int y = 0; y < bmp.Height; y++)
                 {
                     for (int x = 0; x < bmp.Width; x++)
@@ -324,7 +391,6 @@ namespace Elemendid_vormis_TARpv23
                     }
                 }
                 pbox.Image = bmp;
-                pbox.Refresh();
             }
             else
             {
@@ -332,11 +398,11 @@ namespace Elemendid_vormis_TARpv23
             }
         }
 
-        int tt = 0;
         private void JrBtn_Click(object? sender, EventArgs e)
         {
             string fail = pildid[tt];
-            Image = Image.FromFile(@"..\..\..\" + fail);
+            originalImage = Image.FromFile(@"..\..\..\" + fail);
+            Image = originalImage; 
             pbox.Image = Image;
             tt++;
             if (tt == 4)
@@ -348,7 +414,8 @@ namespace Elemendid_vormis_TARpv23
         private void TgBtn_Click(object? sender, EventArgs e)
         {
             string fail = pildid[tt];
-            Image = Image.FromFile(@"..\..\..\" + fail); 
+            originalImage = Image.FromFile(@"..\..\..\" + fail); 
+            Image = originalImage; 
             pbox.Image = Image;
             tt--;
             if (tt < 0)

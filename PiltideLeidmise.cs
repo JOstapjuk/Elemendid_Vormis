@@ -13,6 +13,7 @@ namespace Elemendid_vormis_TARpv23
         Label firstClicked = null;
         Label secondClicked = null;
         System.Windows.Forms.Timer timer;
+        private Color selectedIconColor = Color.Black;
         Random random = new Random();
         List<string> iconsW = new List<string>()
         {
@@ -113,6 +114,58 @@ namespace Elemendid_vormis_TARpv23
 
             Controls.Add(tableLayoutPanel);
             Controls.Add(buttonPanel);
+
+            MenuStrip ms = new MenuStrip();
+            ToolStripMenuItem windowMenu = new ToolStripMenuItem("Värvid");
+
+            ToolStripMenuItem backgroundColorOption = new ToolStripMenuItem("Taustavärvi muutmine", null, new EventHandler(ChangeBackgroundColor_Click));
+            ToolStripMenuItem iconColorOption = new ToolStripMenuItem("Akna värvi muutmine", null, new EventHandler(ChangeIconColor_Click));
+            ToolStripMenuItem iconSelectedColorOption = new ToolStripMenuItem("Vali ikooni värv", null, new EventHandler(ChangeSelectedColor_Click));
+
+            windowMenu.DropDownItems.Add(iconSelectedColorOption);
+            windowMenu.DropDownItems.Add(backgroundColorOption);
+            windowMenu.DropDownItems.Add(iconColorOption);
+
+            ms.Items.Add(windowMenu);
+            ms.Dock = DockStyle.Top;
+            MainMenuStrip = ms;
+            Controls.Add(ms);
+        }
+
+        private void ChangeSelectedColor_Click(object? sender, EventArgs e)
+        {
+            ColorDialog colorDialog = new ColorDialog();
+            if (colorDialog.ShowDialog() == DialogResult.OK)
+            {
+                selectedIconColor = colorDialog.Color;
+            }
+        }
+
+        private void ChangeBackgroundColor_Click(object? sender, EventArgs e)
+        {
+            ColorDialog colorDialog = new ColorDialog();
+            if (colorDialog.ShowDialog() == DialogResult.OK)
+            {
+                tableLayoutPanel.BackColor = colorDialog.Color;
+            }
+        }
+
+        private void ChangeIconColor_Click(object? sender, EventArgs e)
+        {
+            ColorDialog colorDialog = new ColorDialog();
+            if (colorDialog.ShowDialog() == DialogResult.OK)
+            {
+                foreach (Control control in tableLayoutPanel.Controls)
+                {
+                    Label iconLabel = control as Label;
+                    if (iconLabel != null)
+                    {
+                        iconLabel.BackColor = colorDialog.Color;
+
+                        iconLabel.ForeColor = colorDialog.Color;
+                    }
+                }
+            }
         }
 
         private void UpdateCounterLabel()
@@ -199,21 +252,21 @@ namespace Elemendid_vormis_TARpv23
 
             if (clickedLabel != null)
             {
-                if (clickedLabel.ForeColor == Color.Black)
+                if (clickedLabel.ForeColor == selectedIconColor)
                     return;
 
                 if (firstClicked == null)
                 {
                     firstClicked = clickedLabel;
-                    firstClicked.ForeColor = Color.Black;
+                    firstClicked.ForeColor = selectedIconColor;
                     return;
                 }
 
                 secondClicked = clickedLabel;
-                secondClicked.ForeColor = Color.Black;
+                secondClicked.ForeColor = selectedIconColor;
 
-                tries++; 
-                UpdateCounterLabel(); 
+                tries++;
+                UpdateCounterLabel();
 
                 if (firstClicked.Text == secondClicked.Text)
                 {

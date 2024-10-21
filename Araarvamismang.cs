@@ -59,11 +59,11 @@ namespace Elemendid_vormis_TARpv23
             hintButton.Click += HintButton_Click;
             Controls.Add(hintButton);
 
-            //highScoreLabel = new Label();
-            //highScoreLabel.Text = "Kõrgeim skoor: 0";
-            //highScoreLabel.Location = new Point(150, 60);
-            //highScoreLabel.Width = 150;
-            //Controls.Add(highScoreLabel);
+            highScoreLabel = new Label();
+            highScoreLabel.Text = "Kõrgeim skoor: 0";
+            highScoreLabel.Location = new Point(150, 60);
+            highScoreLabel.Width = 150;
+            Controls.Add(highScoreLabel);
 
 
             plusLeftLabel = new Label();
@@ -79,7 +79,7 @@ namespace Elemendid_vormis_TARpv23
             sum = new NumericUpDown();
             sum.Location = new Point(250, 100);
             sum.Width = 50;
-            sum.Value = 0; 
+            sum.Text = "";
             sum.Enter += answer_Enter;
             Controls.Add(sum);
 
@@ -97,7 +97,7 @@ namespace Elemendid_vormis_TARpv23
             sumMinus = new NumericUpDown();
             sumMinus.Location = new Point(250, 150);
             sumMinus.Width = 50;
-            sumMinus.Value = 0; 
+            sumMinus.Text = "";
             sumMinus.Enter += answer_Enter;
             Controls.Add(sumMinus);
 
@@ -114,7 +114,7 @@ namespace Elemendid_vormis_TARpv23
             sumMultiply = new NumericUpDown();
             sumMultiply.Location = new Point(250, 200);
             sumMultiply.Width = 50;
-            sumMultiply.Value = 0; 
+            sumMultiply.Text = "";
             sumMultiply.Enter += answer_Enter;
             Controls.Add(sumMultiply);
 
@@ -132,7 +132,7 @@ namespace Elemendid_vormis_TARpv23
             sumDivide = new NumericUpDown();
             sumDivide.Location = new Point(250, 250);
             sumDivide.Width = 50;
-            sumDivide.Value = 0; 
+            sumDivide.Text = "";
             sumDivide.Enter += answer_Enter;
             Controls.Add(sumDivide);
 
@@ -158,7 +158,7 @@ namespace Elemendid_vormis_TARpv23
             timer = new System.Windows.Forms.Timer(); 
             timer.Interval = 1000; 
             timer.Tick += QuizTimer_Tick;
-            //LoadHighScore();
+            LoadHighScore();
         }
 
         private void HintButton_Click(object sender, EventArgs e)
@@ -197,47 +197,23 @@ namespace Elemendid_vormis_TARpv23
         //https://learn.microsoft.com/en-us/troubleshoot/developer/visualstudio/csharp/language-compilers/read-write-text-file
         //https://learn.microsoft.com/en-us/answers/questions/670543/how-can-i-save-data-information-to-text-file-and-r
 
-        //private void LoadHighScore()
-        //{
-        //    if (File.Exists("Score.txt"))
-        //    {
-        //        string highScoreText = File.ReadAllText("Score.txt");
-        //        if (int.TryParse(highScoreText, out int savedHighScore))
-        //        {
-        //            highScore = savedHighScore;
-        //        }
-        //    }
-        //    highScoreLabel.Text = "Kõrgeim skoor: " + highScore;
-        //}
+        private void LoadHighScore()
+        {
+            if (File.Exists("Score.txt"))
+            {
+                string highScoreText = File.ReadAllText("Score.txt");
+                if (int.TryParse(highScoreText, out int savedHighScore))
+                {
+                    highScore = savedHighScore;
+                }
+            }
+            highScoreLabel.Text = "Kõrgeim skoor: " + highScore;
+        }
 
-        //private void SaveHighScore()
-        //{
-        //    File.WriteAllText("Score.txt", highScore.ToString());
-        //}
-
-        //private void LoadHighScore()
-        //{
-        //    if (File.Exists("Score.txt"))
-        //    {
-        //        using (StreamReader reader = new StreamReader("Score.txt"))
-        //        {
-        //            string highScoreText = reader.ReadLine();
-        //            if (int.TryParse(highScoreText, out int savedHighScore))
-        //            {
-        //                highScore = savedHighScore;
-        //            }
-        //        }
-        //    }
-        //    highScoreLabel.Text = "Kõrgeim skoor: " + highScore;
-        //}
-
-        //private void SaveHighScore()
-        //{
-        //    using (StreamWriter writer = new StreamWriter("Score.txt"))
-        //    {
-        //        writer.WriteLine(highScore.ToString());
-        //    }
-        //}
+        private void SaveHighScore()
+        {
+            File.WriteAllText("Score.txt", highScore.ToString());
+        }      
 
         private void RestartButton_Click(object? sender, EventArgs e)
         {
@@ -327,32 +303,6 @@ namespace Elemendid_vormis_TARpv23
             sumDivide.Value = 0; 
         }
 
-        //private void QuizTimer_Tick(object? sender, EventArgs e)
-        //{
-        //    if (timeLeft > 0)
-        //    {
-        //        timeLeft--;
-        //        timeLabel.Text = $"Aeg on jäänud: {timeLeft} sekundid";
-        //        CheckAnswer();
-        //    }
-        //    else
-        //    {
-        //        timer.Stop();
-        //        timeLabel.Text = "Aeg on läbi!";
-
-        //        if (score > highScore)
-        //        {
-        //            highScore = score;
-        //            highScoreLabel.Text = "Kõrgeim skoor: " + highScore;
-        //            //SaveHighScore();
-        //        }
-
-        //        MessageBox.Show($"Aeg on läbi! Sinu tulemus on {score}.", "Mäng läbi");
-
-        //        startButton.Enabled = true;
-        //    }
-        //}
-
         private void QuizTimer_Tick(object? sender, EventArgs e)
         {
             if (timeLeft > 0)
@@ -366,11 +316,37 @@ namespace Elemendid_vormis_TARpv23
                 timer.Stop();
                 timeLabel.Text = "Aeg on läbi!";
 
+                if (score > highScore)
+                {
+                    highScore = score;
+                    highScoreLabel.Text = "Kõrgeim skoor: " + highScore;
+                    SaveHighScore();
+                }
+
                 MessageBox.Show($"Aeg on läbi! Sinu tulemus on {score}.", "Mäng läbi");
 
                 startButton.Enabled = true;
             }
         }
+
+        //private void QuizTimer_Tick(object? sender, EventArgs e)
+        //{
+        //    if (timeLeft > 0)
+        //    {
+        //        timeLeft--;
+        //        timeLabel.Text = $"Aeg on jäänud: {timeLeft} sekundid";
+        //        CheckAnswer();
+        //    }
+        //    else
+        //    {
+        //        timer.Stop();
+        //        timeLabel.Text = "Aeg on läbi!";
+
+        //        MessageBox.Show($"Aeg on läbi! Sinu tulemus on {score}.", "Mäng läbi");
+
+        //        startButton.Enabled = true;
+        //    }
+        //}
 
         private void CheckAnswer()
         {

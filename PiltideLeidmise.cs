@@ -13,7 +13,7 @@ namespace Elemendid_vormis_TARpv23
         Label firstClicked = null;
         Label secondClicked = null;
         System.Windows.Forms.Timer timer;
-        private Color selectedIconColor = Color.Black;
+        Color selectedIconColor = Color.Black;
         Random random = new Random();
         List<string> iconsW = new List<string>()
         {
